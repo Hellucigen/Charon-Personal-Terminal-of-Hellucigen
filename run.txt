@@ -1,0 +1,2 @@
+cd E:\Charon
+wails dev
