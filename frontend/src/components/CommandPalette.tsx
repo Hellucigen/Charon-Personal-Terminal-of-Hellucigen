@@ -39,10 +39,10 @@ export default function CommandPalette() {
         perform: () => { setFleetingDrawerOpen(true); setPaletteOpen(false); },
       },
       {
-        id: "accent:cyan",    group: "ACCENT", label: "Accent · Cyan",    perform: () => { setAccent("cyan");    setPaletteOpen(false); },
+        id: "accent:orange",  group: "ACCENT", label: "Accent · Orange",  perform: () => { setAccent("orange");  setPaletteOpen(false); },
       },
       {
-        id: "accent:magenta", group: "ACCENT", label: "Accent · Magenta", perform: () => { setAccent("magenta"); setPaletteOpen(false); },
+        id: "accent:cyan",    group: "ACCENT", label: "Accent · Teal",    perform: () => { setAccent("cyan");    setPaletteOpen(false); },
       },
       {
         id: "accent:violet",  group: "ACCENT", label: "Accent · Violet",  perform: () => { setAccent("violet");  setPaletteOpen(false); },
@@ -173,7 +173,7 @@ function renderGroups(items: PaletteItem[], selectedIdx: number, onPick: (it: Pa
                 onClick={() => onPick(it)}
                 className={clsx(
                   "w-full px-4 py-2 flex items-center gap-3 text-left transition",
-                  isSel ? "bg-white/[0.06] text-white" : "text-text-mid hover:bg-white/[0.04]"
+                  isSel ? "bg-[#fff5ee] text-text-hi" : "text-text-mid hover:bg-[#f0f0f0]"
                 )}
               >
                 <ArrowRight size={12} className={isSel ? "text-accent" : "text-text-lo"} />

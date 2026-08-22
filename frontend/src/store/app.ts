@@ -26,7 +26,7 @@ export type ModuleID =
   | "settings"
   | string; // ← 添加 string 支持动态插件 ID
 
-export type AccentColor = "cyan" | "magenta" | "violet" | "lime" | "amber" | "rose";
+export type AccentColor = "orange" | "cyan" | "magenta" | "violet" | "lime" | "amber" | "rose";
 
 export type EnabledPlugin = {
   id: string;
@@ -76,7 +76,7 @@ export const useApp = create<AppState>((set) => ({
   sidebarCollapsed: false,
   toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
 
-  accent: "cyan",
+  accent: "orange",
   setAccent: (c) => {
     document.documentElement.setAttribute("data-accent", c);
     set({ accent: c });

@@ -2,14 +2,19 @@ package main
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
 
+	"github.com/wailsapp/wails/v2/pkg/runtime"
+
+	"personal-terminal/backend/bridge"
 	"personal-terminal/backend/core"
 	"personal-terminal/backend/db"
-	"personal-terminal/backend/modules" // ✨ 引入你编写的 fascinator 服务包
+	"personal-terminal/backend/modules"
 )
 
 // App is the root struct passed to Wails. Anything bound here becomes
@@ -19,13 +24,18 @@ type App struct {
 	bus               *core.EventBus
 	store             *db.Store
 	config            *core.Config
-	fascinatorService *modules.FascinatorService // ✨ 让 App 纳管 Fascinator 服务
+	fascinatorService *modules.FascinatorService
+	bridge            *bridge.Server
 }
 
-func NewApp() *App {
+// NewApp takes the Fascinator service created in main.go so the instance
+// bound to the frontend and the one managed by the app lifecycle are the
+// same object — otherwise frontend Start() and app shutdown() would act
+// on two different processes.
+func NewApp(fascinatorSvc *modules.FascinatorService) *App {
 	return &App{
 		bus:               core.NewEventBus(),
-		fascinatorService: modules.NewFascinatorService(), // ✨ 在这里完成实例化
+		fascinatorService: fascinatorSvc,
 	}
 }
 
@@ -52,32 +62,78 @@ func (a *App) startup(ctx context.Context) {
 	core.GlobalBus = a.bus
 	core.GlobalConfig = cfg
 
-	// =================================================================
-	// ✨【核心修复逻辑】：在系统启动时，强行把路径注入给 Fascinator 服务实例！
-	// =================================================================
-	pythonPath := `E:\Fascinator\.venv\Scripts\python.exe` // 对应你真实的虚拟环境
-	appPath    := `E:\Fascinator\app.py`                    // 对应你的 python 入口
-	port       := 5000
-
-	log.Println("正在强行配置 Fascinator 运行路径参数...")
-	if err := a.fascinatorService.Configure(pythonPath, appPath, port); err != nil {
-		log.Printf("❌ Fascinator 初始化路径配置失败: %v", err)
+	// Configure the Fascinator launcher from the persisted config.
+	// Paths are machine-specific, so they live in config.json (editable
+	// in Settings), never hardcoded here.
+	if a.config.FascinatorApp != "" {
+		if err := a.fascinatorService.Configure(
+			a.config.FascinatorPython,
+			a.config.FascinatorApp,
+			a.config.FascinatorPort,
+		); err != nil {
+			log.Printf("fascinator configure: %v", err)
+		}
+		if a.config.FascinatorConfig != "" {
+			a.fascinatorService.SetConfigPath(a.config.FascinatorConfig)
+		}
+	} else {
+		log.Println("fascinator not configured — set paths in Settings")
 	}
 
-	// 顺便把配置文件路径也强行绑定
-	a.fascinatorService.SetConfigPath(`E:\Fascinator\config.json`)
-	// =================================================================
+	// Reverse bridge: let Fascinator (or any localhost tool) operate
+	// Charon over a token-guarded HTTP API.
+	if a.config.BridgeEnabled {
+		token := bridge.EnsureToken(a.config)
+		port := a.config.BridgePort
+		if port <= 0 {
+			port = 17734
+		}
+		a.bridge = bridge.New(port, token, func(name string, data ...interface{}) {
+			if a.ctx != nil {
+				runtime.EventsEmit(a.ctx, name, data...)
+			}
+		})
+		if err := a.bridge.Start(); err != nil {
+			log.Printf("bridge start failed: %v", err)
+		}
+	}
 
 	log.Println("personal-terminal started")
 }
 
 func (a *App) shutdown(ctx context.Context) {
+	if a.bridge != nil {
+		a.bridge.Stop()
+	}
 	if a.store != nil {
 		_ = a.store.Close()
 	}
-	// ✨ 在应用退出时安全关闭后台 Python 进程
+	// Safely stop the Fascinator subprocess on exit.
 	if a.fascinatorService != nil {
 		_ = a.fascinatorService.Stop()
+	}
+}
+
+// BridgeInfo tells the Settings UI where the reverse API is listening.
+func (a *App) BridgeInfo() map[string]interface{} {
+	cfg := a.config
+	if cfg == nil {
+		cfg = core.GlobalConfig
+	}
+	enabled := cfg != nil && cfg.BridgeEnabled
+	port := 17734
+	token := ""
+	if cfg != nil {
+		if cfg.BridgePort > 0 {
+			port = cfg.BridgePort
+		}
+		token = cfg.BridgeToken
+	}
+	return map[string]interface{}{
+		"enabled": enabled,
+		"port":    port,
+		"url":     fmt.Sprintf("http://127.0.0.1:%d", port),
+		"token":   token,
 	}
 }
 
@@ -88,6 +144,62 @@ func (a *App) Greet(name string) string {
 
 func (a *App) Version() string {
 	return "0.1.0"
+}
+
+// FascinatorSettings is the launcher configuration shown in Settings.
+type FascinatorSettings struct {
+	Python string `json:"python"`
+	App    string `json:"app"`
+	Config string `json:"config"`
+	Port   int    `json:"port"`
+}
+
+// GetFascinatorSettings returns the persisted Fascinator launcher config.
+func (a *App) GetFascinatorSettings() FascinatorSettings {
+	cfg := a.config
+	if cfg == nil {
+		cfg = core.GlobalConfig
+	}
+	if cfg == nil {
+		return FascinatorSettings{Port: 5000}
+	}
+	return FascinatorSettings{
+		Python: cfg.FascinatorPython,
+		App:    cfg.FascinatorApp,
+		Config: cfg.FascinatorConfig,
+		Port:   cfg.FascinatorPort,
+	}
+}
+
+// SaveFascinatorSettings persists the launcher config and applies it to the
+// live service. The new paths take effect on the next Fascinator start.
+func (a *App) SaveFascinatorSettings(s FascinatorSettings) error {
+	cfg := a.config
+	if cfg == nil {
+		cfg = core.GlobalConfig
+	}
+	if cfg == nil {
+		return errors.New("config not loaded")
+	}
+
+	cfg.FascinatorPython = s.Python
+	cfg.FascinatorApp = s.App
+	cfg.FascinatorConfig = s.Config
+	if s.Port > 0 {
+		cfg.FascinatorPort = s.Port
+	}
+	if err := cfg.Save(); err != nil {
+		return err
+	}
+	a.config = cfg
+
+	if s.App != "" {
+		if err := a.fascinatorService.Configure(s.Python, s.App, s.Port); err != nil {
+			return err
+		}
+		a.fascinatorService.SetConfigPath(s.Config)
+	}
+	return nil
 }
 
 // ReadPluginFile 提供给前端，用来安全读取用户本地磁盘插件目录下的指定文件内容

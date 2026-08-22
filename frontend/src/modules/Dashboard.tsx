@@ -69,7 +69,7 @@ export default function Dashboard() {
           ) : (
             <ul className="divide-y divide-edge">
               {recent.map(f => (
-                <li key={f.id} className="px-5 py-3 hover:bg-white/[0.02] transition group">
+                <li key={f.id} className="px-5 py-3 hover:bg-[#f0f0f0] transition group">
                   <div className="flex items-start gap-3">
                     <span className="pt-num text-[10.5px] text-text-lo mt-0.5">
                       {new Date(f.created_at * 1000).toISOString().slice(5,16).replace("T"," ")}

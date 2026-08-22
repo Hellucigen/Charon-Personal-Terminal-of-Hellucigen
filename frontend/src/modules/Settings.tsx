@@ -1,14 +1,37 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import GlassPanel from '@/components/GlassPanel'
 import { useApp } from '@/store/app'
+import { api } from '@/lib/api'
 import { Palette, Globe, Key, FolderCog } from 'lucide-react'
 
-const ACCENTS = ['cyan', 'magenta', 'violet', 'lime', 'amber', 'rose'] as const
+const ACCENTS = ['orange', 'cyan', 'violet', 'lime', 'amber', 'rose'] as const
 
 export const Settings: React.FC = () => {
   const { accent, setAccent } = useApp()
   const [locale, setLocale] = useState<'zh' | 'en'>('zh')
   const [aiKey, setAiKey] = useState('')
+
+  const [fs, setFs] = useState({ python: '', app: '', config: '', port: '5000' })
+  const [fsState, setFsState] = useState<'idle' | 'saved' | 'error'>('idle')
+
+  useEffect(() => {
+    api.fascinatorSettings.get()
+      .then(s => setFs({ python: s.python, app: s.app, config: s.config, port: String(s.port || 5000) }))
+      .catch(() => {})
+  }, [])
+
+  const saveFascinator = async () => {
+    try {
+      await api.fascinatorSettings.save({
+        python: fs.python, app: fs.app, config: fs.config,
+        port: parseInt(fs.port, 10) || 5000,
+      })
+      setFsState('saved')
+    } catch {
+      setFsState('error')
+    }
+    setTimeout(() => setFsState('idle'), 2500)
+  }
 
   return (
     <div className="p-6 space-y-4 max-w-3xl">
@@ -63,11 +86,42 @@ export const Settings: React.FC = () => {
         />
       </Section>
 
-      <Section icon={<FolderCog size={13} />} label="FASCINATOR · 路径配置" hint="在 Fascinator 模块的 Config 标签页编辑超参数 · 这里仅设置启动器路径">
+      <Section icon={<FolderCog size={13} />} label="FASCINATOR · 路径配置" hint="启动器路径 · 保存后于下次启动 Fascinator 生效 · 引擎超参数在 Fascinator 模块的 Config 标签页编辑">
         <div className="space-y-2">
-          <input className="pt-input w-full pt-mono text-xs" placeholder="Python 解释器路径（留空则自动探测）" />
-          <input className="pt-input w-full pt-mono text-xs" placeholder="app.py 路径，例如 ~/code/fascinator/app.py" />
-          <input className="pt-input w-full pt-mono text-xs" placeholder="端口（默认 5000）" />
+          <input
+            className="pt-input w-full pt-mono text-xs"
+            placeholder="Python 解释器路径（留空则自动探测）"
+            value={fs.python}
+            onChange={e => setFs({ ...fs, python: e.target.value })}
+          />
+          <input
+            className="pt-input w-full pt-mono text-xs"
+            placeholder="app.py 路径，例如 E:\Fascinator\app.py"
+            value={fs.app}
+            onChange={e => setFs({ ...fs, app: e.target.value })}
+          />
+          <input
+            className="pt-input w-full pt-mono text-xs"
+            placeholder="config.json 路径（可选 · 留空则通过 API 读写）"
+            value={fs.config}
+            onChange={e => setFs({ ...fs, config: e.target.value })}
+          />
+          <div className="flex items-center gap-2">
+            <input
+              className="pt-input pt-mono text-xs w-28"
+              placeholder="端口"
+              value={fs.port}
+              onChange={e => setFs({ ...fs, port: e.target.value.replace(/\D/g, '') })}
+            />
+            <button
+              onClick={saveFascinator}
+              className="px-3 py-1.5 border border-edge pt-mono text-xs text-text-mid hover:text-accent hover:border-accent transition-colors"
+            >
+              SAVE
+            </button>
+            {fsState === 'saved' && <span className="text-xs pt-mono text-accent">已保存</span>}
+            {fsState === 'error' && <span className="text-xs pt-mono text-rose-400">保存失败</span>}
+          </div>
         </div>
       </Section>
 
@@ -78,7 +132,7 @@ export const Settings: React.FC = () => {
           <span className="pt-mono text-accent">Wails v2 · Go + React</span>
         </div>
         <div className="text-xs text-text-lo mt-2">
-          数据：<span className="pt-mono">~/.personal-terminal/data.db</span> ·
+          数据：<span className="pt-mono">~/.personal-terminal/terminal.db</span> ·
           媒体：<span className="pt-mono">~/.personal-terminal/media/</span> ·
           插件：<span className="pt-mono">~/.personal-terminal/plugins/</span>
         </div>

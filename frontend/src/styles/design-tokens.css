@@ -1,45 +1,62 @@
 /* ─────────────────────────────────────────────────────────────────────
-   PERSONAL TERMINAL · design tokens
+   CHARON · design tokens — industrial analysis dashboard
 
-   Aesthetic commitment: cyberpunk-lite × Linear/Arc polish.
-   Deep ink surfaces, hairline edges, one signature accent at a time,
-   monospaced numerals everywhere, no rounded-pill softness.
+   Aligned with Fascinator's STYLE_GUIDE.md: light base, 1px bordered
+   module cards, dual accent (orange = action/user/high-activation,
+   teal = focus/system), monospace as the data language, uppercase +
+   letter-spacing for the instrument nameplate feel.
 
    Accent themes are swapped by changing the --pt-accent triple on
-   <html data-accent="cyan|magenta|violet|lime|amber|rose">. Every
-   component references --pt-accent rather than hard-coded colors.
+   <html data-accent="teal|red|violet|green|slate">; default (no attr)
+   is the Fascinator orange.
 ───────────────────────────────────────────────────────────────────── */
 
 :root {
-  /* ── Ink surfaces ─────────────────────────────────────────────── */
-  --pt-bg:        10  10  15;     /* base canvas */
-  --pt-surface:   16  16  24;     /* panel face */
-  --pt-surface-2: 21  21  28;     /* nested panel */
-  --pt-surface-3: 28  28  37;     /* hover */
-  --pt-elevated:  34  34  44;     /* command palette, modals */
+  /* ── Light industrial surfaces ────────────────────────────────── */
+  --pt-bg:        244 244 244;     /* #f4f4f4 page canvas (grid texture) */
+  --pt-surface:   250 250 250;     /* #fafafa module card face */
+  --pt-surface-2: 240 240 240;     /* #f0f0f0 nested panel */
+  --pt-surface-3: 232 232 232;     /* #e8e8e8 hover */
+  --pt-elevated:  255 255 255;     /* command palette, modals */
 
-  /* ── Hairline edges ───────────────────────────────────────────── */
-  --pt-edge:       255 255 255;
-  --pt-edge-a:     0.07;
-  --pt-edge-hot-a: 0.16;
+  /* ── Hairline edges (dark strokes on light) ───────────────────── */
+  --pt-edge:       0 0 0;
+  --pt-edge-a:     0.16;           /* ≈ #d0d0d0 on #fafafa */
+  --pt-edge-hot-a: 0.34;           /* ≈ #a8a8a8 */
 
   /* ── Text ─────────────────────────────────────────────────────── */
-  --pt-text-hi:  231 231 238;
-  --pt-text-mid: 164 164 179;
-  --pt-text-lo:   90  90 106;
+  --pt-text-hi:  26 26 26;         /* #1a1a1a */
+  --pt-text-mid: 58 58 58;         /* #3a3a3a */
+  --pt-text-lo:  136 136 136;      /* #888888 */
 
-  /* ── Default accent: cyan ─────────────────────────────────────── */
-  --pt-accent:      92 242 255;
-  --pt-accent-dim:  60 170 190;
-  --pt-accent-glow: 92 242 255;
+  /* ── Dual accent: orange primary / teal secondary ─────────────── */
+  --pt-accent:      255 107 0;     /* #ff6b00 action / user / high-activation */
+  --pt-accent-dim:  229 93 0;      /* #e55d00 readable on light */
+  --pt-accent-glow: 255 107 0;
+  --pt-teal:        0 210 211;     /* #00d2d3 focus / system */
+  --pt-teal-dim:    0 154 155;     /* #009a9b teal as text on light */
 
   /* ── Signal colors (always available regardless of theme) ─────── */
-  --sig-cyan:    92 242 255;
-  --sig-magenta: 255  92 209;
-  --sig-violet:  164 139 255;
-  --sig-lime:    182 255  92;
-  --sig-amber:   255 174  92;
-  --sig-rose:    255  92 122;
+  --sig-cyan:    0 154 155;        /* teal-dim */
+  --sig-magenta: 194 24 96;        /* #c2185b */
+  --sig-violet:  124 77 255;       /* #7c4dff procedural */
+  --sig-lime:    16 168 96;        /* #10a860 success */
+  --sig-amber:   199 119 0;        /* #c77700 warning */
+  --sig-rose:    224 48 48;        /* #e03030 error */
+
+  /* Named accents for module decorations (dept colors, time blocks…) */
+  --accent-cyan:    #009a9b;
+  --accent-magenta: #c2185b;
+  --accent-violet:  #7c4dff;
+  --accent-lime:    #2e7d32;
+  --accent-amber:   #ff8c3a;
+  --accent-rose:    #e03030;
+  --accent-orange:  #ff6b00;
+
+  /* ── Type ─────────────────────────────────────────────────────── */
+  --pt-font-mono: "Share Tech Mono", "JetBrains Mono", "Consolas", monospace;
+  --pt-font-sans: "Barlow Semi Condensed", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  --pt-font-display: var(--pt-font-sans);
 
   /* ── Type scale ───────────────────────────────────────────────── */
   --pt-fs-xs:   11px;
@@ -55,6 +72,7 @@
   --pt-sidebar-min:  56px;
   --pt-topbar-h:     44px;
   --pt-content-pad:  28px;
+  --pt-radius:       2px;          /* global corner — the only one */
 
   /* ── Easing ───────────────────────────────────────────────────── */
   --pt-ease:    cubic-bezier(0.32, 0.72, 0, 1);
@@ -65,8 +83,10 @@
 }
 
 /* Accent variants. Swap on the <html> element. */
-html[data-accent="magenta"] { --pt-accent: 255  92 209; --pt-accent-dim: 200  72 165; --pt-accent-glow: 255  92 209; }
-html[data-accent="violet"]  { --pt-accent: 164 139 255; --pt-accent-dim: 128 102 220; --pt-accent-glow: 164 139 255; }
-html[data-accent="lime"]    { --pt-accent: 182 255  92; --pt-accent-dim: 140 200  60; --pt-accent-glow: 182 255  92; }
-html[data-accent="amber"]   { --pt-accent: 255 174  92; --pt-accent-dim: 200 130  60; --pt-accent-glow: 255 174  92; }
-html[data-accent="rose"]    { --pt-accent: 255  92 122; --pt-accent-dim: 200  72  95; --pt-accent-glow: 255  92 122; }
+html[data-accent="orange"]  { --pt-accent: 255 107 0;  --pt-accent-dim: 229 93 0;   --pt-accent-glow: 255 107 0; }
+html[data-accent="cyan"]    { --pt-accent: 0 154 155;  --pt-accent-dim: 0 130 131;  --pt-accent-glow: 0 210 211; }
+html[data-accent="violet"]  { --pt-accent: 124 77 255; --pt-accent-dim: 94 53 208;  --pt-accent-glow: 124 77 255; }
+html[data-accent="lime"]    { --pt-accent: 16 168 96;  --pt-accent-dim: 12 128 73;  --pt-accent-glow: 16 168 96; }
+html[data-accent="amber"]   { --pt-accent: 255 140 58; --pt-accent-dim: 214 110 30; --pt-accent-glow: 255 140 58; }
+html[data-accent="rose"]    { --pt-accent: 224 48 48;  --pt-accent-dim: 180 30 30;  --pt-accent-glow: 224 48 48; }
+html[data-accent="magenta"] { --pt-accent: 194 24 96;  --pt-accent-dim: 150 16 74;  --pt-accent-glow: 194 24 96; }

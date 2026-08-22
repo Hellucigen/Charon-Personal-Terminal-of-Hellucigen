@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <i>赛博朋克轻量风 · Linear.app 美学 · Arc Browser 质感 · 键盘优先 · 暗色霓虹 · 克制毛玻璃 · ASCII/线性图标 · 等宽数字</i>
+  <i>工业分析仪表盘 · 浅色基底 · 橙 + 青绿双强调 · Share Tech Mono 数据语言 · 键盘优先 · 细边框无圆角 · 网格纹理 · 等宽数字</i>
 </p>
 
 ```
@@ -39,47 +39,50 @@ Personal Terminal 是一个跨平台桌面应用，将约 22 个个人知识管�
 | 层级 | 技术栈 | 说明 |
 |------|--------|------|
 | **🔧 Go 后端** (`backend/`) | Go 1.25 + SQLite (WAL/FTS5) + Wails v2 | 数据库层、事件总线、REST 代理、Fascinator 进程管控、插件扫描 |
-| **🎨 React 前端** (`frontend/`) | React 18 + TypeScript + Vite + Tailwind + Zustand + Tiptap | 22 个功能模块、命令面板、毛玻璃 UI、Framer Motion 动画 |
+| **🎨 React 前端** (`frontend/`) | React 18 + TypeScript + Vite + Tailwind + Zustand + Tiptap | 22 个功能模块、命令面板、工业仪表盘 UI、Framer Motion 动画 |
 | **🧩 插件系统** (`plugins/`) | 沙盒化 iframe + `plugin.json` 清单 | 面板/命令/后台/块四种插件类型，权限模型隔离 |
 
 ---
 
-## Module map
+## Module map · v0.2 全模块可用
 
 ### Core
 - **Dashboard** — greeting, today's overview, Fascinator status, recent fleeting stream
-- **Fascinator** — launcher, log tail, NLP input, Top-k & action queue, config editor
+- **Fascinator** — full cognitive console: 80+ API endpoints across 11 tabs (graph canvas with node/edge CRUD, NLP, diffusion engine, action queue, self model, episodic buffer, knowledge packs, ear/vision, chat log, config)
 
 ### Knowledge
 - **Notes** — Notion-style block editor (Tiptap) with sub-templates: blank · dream · weapon · anime · game · movie · book · poem · plant · wishlist · want-game · password · detective · travel · institute · study. Wiki-links (`[[title]]`), full-text search, backlinks.
 - **Fleeting** — Ctrl+Alt+N hotkey, waterfall stream, promote-to-note workflow
-- **Detective Board** *(stub)* — free canvas, red-string node graph
-- **Travel** *(stub)* — timeline + map view + EXIF photo placement
-- **Institute** *(stub)* — Fallout 4 inspired "company of one" with departments / actions / phases
+- **Detective Board** — red-string corkboard on an SVG canvas: draggable person/place/event/evidence/theory cards, confirmed/suspect/ruled-out relations, JSON export
+- **Travel** — trips + daily entries (mood / spend / GPS), mini-map footprint, spending auto-posts to Finance
+- **Institute** — Fallout-4-flavoured "company of one": departments, action kanban (active/hold/done + progress), phase milestones; completing actions awards XP
 
 ### Ops
-- **Todo** — MS-Todo-style lists (Today / Important / Planned / Inbox), Windows toast reminders
+- **Todo** — MS-Todo-style lists (Today / Important / Planned / Inbox), due-soon polling for toasts
 - **Shortcuts** — folder/URL/.lnk launcher, one-click open in Explorer / Terminal / VSCode
-- **Bookmarks** — folder tree + Edge HTML import + offline snapshot (Chromedp)
-- **Passwords** *(stub)* — AES-256-GCM, Edge CSV import, 30 s clipboard auto-clear
-- **Network** *(stub)* — IP/DNS/Ping, Base64/JSON/regex tools, mini-Postman
+- **Bookmarks** — folder tree + Edge HTML import
+- **Passwords** — AES-256-GCM vault behind a PBKDF2 master passphrase, Edge CSV import, strength/duplicate flags, clipboard auto-clear
+- **Network** — IP/DNS/ping, Base64/URL/MD5/SHA/JSON encoders, regex tester, mini-Postman
 
 ### Life
-- **Learning** *(stub)* — flashcards, driving test, AI quiz; 320×200 always-on-top window
-- **Music** *(stub)* — local library, Last.fm scrobble, podcast RSS
-- **Finance** *(stub)* — Alipay / WeChat CSV import, subscriptions, sankey diagrams
-- **Health** *(stub)* — weight / sleep / habit toasts; sleep ↔ dream-journal sync
-- **Creative** *(stub)* — Excalidraw, moodboard, focused-writing mode
-- **Time** *(stub)* — Pomodoro, time-blocking, RescueTime-style app-time
-- **RPG** *(stub)* — XP, six-dimensional life stats, achievements
-- **Data** *(stub)* — cross-module dashboards, year-in-review, heatmaps
-- **Diary** *(stub)* — one-line-a-day, weekly/monthly auto-summaries
+- **Learning** — SRS flashcards (simplified SM-2), JSON/CSV import, graded review, due counts; reviews award XP
+- **Music** — local library scan (mp3/flac/m4a/wav), system-player playback, podcast RSS subscriptions with episode lists
+- **Finance** — manual + Alipay/WeChat CSV import (GBK auto-detected), monthly & category summaries, subscriptions with next-due warnings
+- **Health** — ad-hoc habits (weight/sleep/water/exercise), streaks, latest values, trend sparklines
+- **Creative** — moodboards (colors / text / image refs) + writing sessions with daily word goal (words → XP)
+- **Time** — pomodoro timer (auto-saved, XP on focus), time-block day view, Windows foreground-app usage tracking
+- **RPG** — XP + level curve, six life stats radar (体力/智力/创造/社交/财力/意志), achievements incl. auto-check
+- **Data** — cross-module overview tiles, GitHub-style activity heatmap, auto year-in-review, full JSON export
+- **Diary** — one-line-a-day with mood, history, on-this-day, week/month/year auto-summaries
 
 ### System
 - **Plugins** — drop a folder into `~/.personal-terminal/plugins/` and it loads
-- **Settings** — theme accent (cyan · magenta · violet · lime · amber · rose), locale, AI key, Fascinator paths
+- **Settings** — theme accent (cyan · magenta · violet · lime · amber · rose), locale, AI key, Fascinator paths, bridge info
 
-Modules marked *(stub)* have placeholder UIs; the backend hooks and data tables are scaffolded so plugins can fill them in immediately.
+### Reverse Bridge（让 Fascinator 操作 Charon）
+Charon 内嵌 token 鉴权的本机 HTTP API（`127.0.0.1:17734`）：创建笔记/待办/碎片、记账、写日记、
+钉侦探板卡片、弹 toast、推送事件、跨模块统计。Fascinator 的动作引擎可以直接调用。
+详见 [`docs/FASCINATOR_INTEGRATION.md`](docs/FASCINATOR_INTEGRATION.md) §8。
 
 ---
 
@@ -103,8 +106,8 @@ go install github.com/wailsapp/wails/v2/cmd/wails@latest
 wails doctor
 
 # 3. 克隆仓库
-git clone https://github.com/Hellucigen/Hellucigen-AI-Project-Practicum.git
-cd Hellucigen-AI-Project-Practicum
+git clone https://github.com/Hellucigen/Charon-Personal-Terminal-of-Hellucigen.git
+cd Charon-Personal-Terminal-of-Hellucigen
 
 # 4. 安装前端依赖
 cd frontend && npm install && cd ..
@@ -182,7 +185,7 @@ export ANTHROPIC_API_KEY=sk-ant-...
 ```
 ~/.personal-terminal/
   ├─ config.json
-  ├─ data.db          # SQLite, WAL, FTS5
+  ├─ terminal.db       # SQLite, WAL, FTS5
   ├─ media/           # everything referenced by notes
   ├─ plugins/         # drop plugin folders here
   └─ logs/
@@ -203,6 +206,7 @@ personal-terminal/
 ├─ backend/
 │  ├─ core/                 # Config, EventBus, plugin manifest types
 │  ├─ db/                   # SQLite open + migrations
+│  ├─ bridge/               # reverse HTTP API — Fascinator operates Charon
 │  └─ modules/              # Service structs bound to the frontend
 │     ├─ fascinator.go      # Fascinator process control + REST proxy
 │     ├─ notes.go           # CRUD + FTS + backlinks
@@ -210,7 +214,21 @@ personal-terminal/
 │     ├─ fleeting.go        # capture + stream + promote-to-note
 │     ├─ shortcuts.go       # add/open/delete + cross-platform open
 │     ├─ bookmarks.go       # CRUD + Edge HTML import
-│     └─ plugins.go         # scan ~/.personal-terminal/plugins/
+│     ├─ plugins.go         # scan ~/.personal-terminal/plugins/
+│     ├─ passwords.go       # AES-256-GCM vault + Edge CSV import
+│     ├─ detective.go       # red-string board nodes/edges
+│     ├─ travel.go          # trips + entries (+ posts spend to finance)
+│     ├─ institute.go       # departments / actions / phases
+│     ├─ learning.go        # SM-2 flashcards + import
+│     ├─ music.go           # library scan + podcast RSS
+│     ├─ finance.go         # transactions + CSV import + subscriptions
+│     ├─ health.go          # habit logs, streaks, overview
+│     ├─ diary.go           # one-line-a-day + auto summaries
+│     ├─ creative.go        # moodboards + writing sessions
+│     ├─ nettools.go        # ping/DNS/encode/regex/mini-postman
+│     ├─ timetrack.go       # pomodoro + blocks + foreground polling
+│     ├─ rpg.go             # XP / levels / achievements (awardXP hook)
+│     └─ analytics.go       # overview / heatmap / year review / export
 ├─ frontend/
 │  ├─ index.html
 │  ├─ src/
@@ -243,7 +261,7 @@ personal-terminal/
 | 富文本编辑器 | Tiptap (StarterKit + TaskList + Image + Link + CodeBlock) |
 | 图标 | Lucide React（仅线性图标） |
 | 动画 | Framer Motion + CSS keyframes |
-| 字体 | Inter · JetBrains Mono · 思源黑体 · Space Grotesk |
+| 字体 | Share Tech Mono（数据）· Barlow Semi Condensed（界面）· Noto Sans SC |
 
 ---
 
@@ -251,10 +269,11 @@ personal-terminal/
 
 1. **本地优先** — 数据在你的磁盘上，格式可用 `cat` 和 `sqlite3` 直接读取。云端为可选模块。
 2. **键盘优先** — 每个操作都可通过 `Ctrl+K` 触达。鼠标是便利，不是必需。
-3. **克制毛玻璃** — 面板使用 `backdrop-filter: blur(20px)` 覆盖 5% 白色 + 1px 边缘线。无大圆角、无投影、仅强调元素使用霓虹光。
-4. **ASCII 代替 Emoji** — 标题和标签使用大写等宽字体 + 0.18em 字间距。状态点为彩色小圆点。
-5. **等宽数字** — 计数、时间戳、时长、哈希——所有数字使用 JetBrains Mono `font-variant-numeric: tabular-nums`。
-6. **默认可扩展** — 核心模块之外（笔记/Todo/Fleeting/Fascinator）都可以被迁移为插件。
+3. **工业仪表盘（对齐 Fascinator STYLE_GUIDE.md）** — 浅色基底 `#f4f4f4` + 32px 线网格；模块卡片 `#fafafa` + 1px 边框；全局圆角仅 2px，阴影只出现在模态框。
+4. **双强调色** — 橙 `#ff6b00` = 动作/用户/高激活；青绿 `#00d2d3` = 焦点/系统侧。输入焦点一律青绿边框，主按钮为唯一橙色实心。
+5. **铭牌排版** — 界面标签全部大写 + 字距（Share Tech Mono 做数据语言 / Barlow Semi Condensed 做界面语言）；状态灯为方形指示灯。
+6. **等宽数字** — 计数、时间戳、时长、哈希——所有数字 `font-variant-numeric: tabular-nums`。
+7. **默认可扩展** — 核心模块之外（笔记/Todo/Fleeting/Fascinator）都可以被迁移为插件。
 
 ---
 

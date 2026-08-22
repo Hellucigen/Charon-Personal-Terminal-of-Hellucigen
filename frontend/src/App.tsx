@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect } from 'react'
+import React, { Suspense, lazy, useEffect, useState } from 'react'
 import Sidebar from '@/components/Sidebar'
 import TopBar from '@/components/TopBar'
 import CommandPalette from '@/components/CommandPalette'
@@ -6,6 +6,7 @@ import FleetingDrawer from '@/components/FleetingDrawer'
 import { useApp } from '@/store/app'
 import Dashboard from '@/modules/Dashboard'
 import { PluginPanel } from '@/components/PluginPanel'
+import { EventsOn } from './wailsjs/runtime/runtime'
 import { List, IsEnabled } from './wailsjs/go/modules/PluginsService'
 
 const Fascinator = lazy(() => import('@/modules/Fascinator').then(m => ({ default: m.Fascinator })))
@@ -17,21 +18,21 @@ const Bookmarks  = lazy(() => import('@/modules/Bookmarks').then(m => ({ default
 const Plugins    = lazy(() => import('@/modules/Plugins').then(m => ({ default: m.Plugins })))
 const Settings   = lazy(() => import('@/modules/Settings').then(m => ({ default: m.Settings })))
 
-// Stubs
-const Passwords  = lazy(() => import('@/modules/Stubs').then(m => ({ default: m.Passwords })))
-const Detective  = lazy(() => import('@/modules/Stubs').then(m => ({ default: m.Detective })))
-const Travel     = lazy(() => import('@/modules/Stubs').then(m => ({ default: m.Travel })))
-const Institute  = lazy(() => import('@/modules/Stubs').then(m => ({ default: m.Institute })))
-const Learning   = lazy(() => import('@/modules/Stubs').then(m => ({ default: m.Learning })))
-const Music      = lazy(() => import('@/modules/Stubs').then(m => ({ default: m.Music })))
-const Finance    = lazy(() => import('@/modules/Stubs').then(m => ({ default: m.Finance })))
-const Health     = lazy(() => import('@/modules/Stubs').then(m => ({ default: m.Health })))
-const Creative   = lazy(() => import('@/modules/Stubs').then(m => ({ default: m.Creative })))
-const Network    = lazy(() => import('@/modules/Stubs').then(m => ({ default: m.Network })))
-const Time       = lazy(() => import('@/modules/Stubs').then(m => ({ default: m.Time })))
-const RPG        = lazy(() => import('@/modules/Stubs').then(m => ({ default: m.RPG })))
-const Data       = lazy(() => import('@/modules/Stubs').then(m => ({ default: m.Data })))
-const Diary      = lazy(() => import('@/modules/Stubs').then(m => ({ default: m.Diary })))
+// v0.2 — real implementations
+const Passwords  = lazy(() => import('@/modules/Passwords').then(m => ({ default: m.Passwords })))
+const Detective  = lazy(() => import('@/modules/Detective').then(m => ({ default: m.Detective })))
+const Travel     = lazy(() => import('@/modules/Travel').then(m => ({ default: m.Travel })))
+const Institute  = lazy(() => import('@/modules/Institute').then(m => ({ default: m.Institute })))
+const Learning   = lazy(() => import('@/modules/Learning').then(m => ({ default: m.Learning })))
+const Music      = lazy(() => import('@/modules/Music').then(m => ({ default: m.Music })))
+const Finance    = lazy(() => import('@/modules/Finance').then(m => ({ default: m.Finance })))
+const Health     = lazy(() => import('@/modules/Health').then(m => ({ default: m.Health })))
+const Creative   = lazy(() => import('@/modules/Creative').then(m => ({ default: m.Creative })))
+const Network    = lazy(() => import('@/modules/Network').then(m => ({ default: m.Network })))
+const Time       = lazy(() => import('@/modules/Time').then(m => ({ default: m.Time })))
+const RPG        = lazy(() => import('@/modules/RPG').then(m => ({ default: m.RPG })))
+const Data       = lazy(() => import('@/modules/Data').then(m => ({ default: m.Data })))
+const Diary      = lazy(() => import('@/modules/Diary').then(m => ({ default: m.Diary })))
 
 const Fallback: React.FC = () => (
     <div className="flex items-center justify-center h-full">
@@ -41,6 +42,7 @@ const Fallback: React.FC = () => (
 
 export default function App() {
   const { active, enabledPlugins, setEnabledPlugins } = useApp()
+  const [toasts, setToasts] = useState<{ id: number; title: string; message: string }[]>([])
 
   // 启动时加载已启用的插件
   useEffect(() => {
@@ -55,6 +57,19 @@ export default function App() {
       setEnabledPlugins(enabled)
     }
     loadEnabled()
+  }, [])
+
+  // Bridge events — Fascinator (or any local tool) pushes notifications
+  // and cross-module events through the reverse HTTP API.
+  useEffect(() => {
+    let n = 0
+    const off = EventsOn('charon.notify', (data: any) => {
+      const d = Array.isArray(data) ? data[0] : data
+      const id = ++n
+      setToasts(ts => [...ts, { id, title: d?.title ?? '通知', message: d?.message ?? '' }])
+      setTimeout(() => setToasts(ts => ts.filter(t => t.id !== id)), 6000)
+    })
+    return () => { off?.() }
   }, [])
 
 // ───── 核心视图网关切换 ─────
@@ -87,6 +102,19 @@ export default function App() {
 
       case 'plugins':    content = <Plugins />; break;
       case 'settings':   content = <Settings />; break;
+      case 'detective':  content = <Detective />; break;
+      case 'travel':     content = <Travel />; break;
+      case 'institute':  content = <Institute />; break;
+      case 'learning':   content = <Learning />; break;
+      case 'music':      content = <Music />; break;
+      case 'finance':    content = <Finance />; break;
+      case 'health':     content = <Health />; break;
+      case 'creative':   content = <Creative />; break;
+      case 'network':    content = <Network />; break;
+      case 'time':       content = <Time />; break;
+      case 'rpg':        content = <RPG />; break;
+      case 'data':       content = <Data />; break;
+      case 'diary':      content = <Diary />; break;
       default:           content = <Dashboard />;
     }
   }
@@ -102,6 +130,15 @@ export default function App() {
         </div>
         <CommandPalette />
         <FleetingDrawer />
+        {/* Bridge toast corner — messages pushed from Fascinator */}
+        <div className="fixed bottom-4 right-4 z-50 space-y-2">
+          {toasts.map(t => (
+            <div key={t.id} className="pt-glass border border-accent/50 px-4 py-3 max-w-sm">
+              <div className="pt-section-label text-accent">{t.title}</div>
+              <div className="text-xs text-text-mid mt-1">{t.message}</div>
+            </div>
+          ))}
+        </div>
       </div>
   )
 }

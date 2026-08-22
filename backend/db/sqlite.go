@@ -197,4 +197,144 @@ var migrations = []string{
 		unlocked   INTEGER NOT NULL DEFAULT 0,
 		unlocked_at INTEGER
 	);`,
+	// 10 — detective board
+	`CREATE TABLE IF NOT EXISTS detective_nodes (
+		id         TEXT PRIMARY KEY,
+		kind       TEXT NOT NULL DEFAULT 'person', -- person|place|event|evidence|theory
+		label      TEXT NOT NULL,
+		note       TEXT NOT NULL DEFAULT '',
+		x          REAL NOT NULL DEFAULT 0,
+		y          REAL NOT NULL DEFAULT 0,
+		pinned     TEXT NOT NULL DEFAULT '',       -- note id pinned to the board
+		created_at INTEGER NOT NULL
+	);
+	CREATE TABLE IF NOT EXISTS detective_edges (
+		id      TEXT PRIMARY KEY,
+		from_id TEXT NOT NULL,
+		to_id   TEXT NOT NULL,
+		relation TEXT NOT NULL DEFAULT 'confirmed' -- confirmed|suspect|ruled-out
+	);`,
+	// 11 — travel
+	`CREATE TABLE IF NOT EXISTS travel_trips (
+		id         TEXT PRIMARY KEY,
+		title      TEXT NOT NULL,
+		start_at   INTEGER NOT NULL,
+		end_at     INTEGER,
+		note       TEXT NOT NULL DEFAULT '',
+		created_at INTEGER NOT NULL
+	);
+	CREATE TABLE IF NOT EXISTS travel_entries (
+		id         TEXT PRIMARY KEY,
+		trip_id    TEXT NOT NULL,
+		title      TEXT NOT NULL DEFAULT '',
+		body       TEXT NOT NULL DEFAULT '',
+		mood       INTEGER NOT NULL DEFAULT 3,
+		spend      REAL NOT NULL DEFAULT 0,
+		lat        REAL,
+		lng        REAL,
+		photos     TEXT NOT NULL DEFAULT '[]',
+		logged_at  INTEGER NOT NULL
+	);
+	CREATE INDEX IF NOT EXISTS idx_travel_entries_trip ON travel_entries(trip_id);`,
+	// 12 — institute (company of one)
+	`CREATE TABLE IF NOT EXISTS institute_departments (
+		id         TEXT PRIMARY KEY,
+		name       TEXT NOT NULL,
+		function   TEXT NOT NULL DEFAULT '',
+		vision     TEXT NOT NULL DEFAULT '',
+		color      TEXT NOT NULL DEFAULT 'cyan',
+		sort_order INTEGER NOT NULL DEFAULT 0,
+		created_at INTEGER NOT NULL
+	);
+	CREATE TABLE IF NOT EXISTS institute_actions (
+		id         TEXT PRIMARY KEY,
+		title      TEXT NOT NULL,
+		dept_id    TEXT NOT NULL DEFAULT '',
+		status     TEXT NOT NULL DEFAULT 'active', -- active|hold|done
+		progress   INTEGER NOT NULL DEFAULT 0,
+		note       TEXT NOT NULL DEFAULT '',
+		updated_at INTEGER NOT NULL
+	);
+	CREATE TABLE IF NOT EXISTS institute_phases (
+		id         TEXT PRIMARY KEY,
+		title      TEXT NOT NULL,
+		dept_id    TEXT NOT NULL DEFAULT '',
+		start_at   INTEGER,
+		end_at     INTEGER,
+		milestones TEXT NOT NULL DEFAULT '[]',
+		done       INTEGER NOT NULL DEFAULT 0,
+		retro      TEXT NOT NULL DEFAULT '',
+		created_at INTEGER NOT NULL
+	);`,
+	// 13 — learning (SRS flashcards)
+	`CREATE TABLE IF NOT EXISTS learn_decks (
+		id         TEXT PRIMARY KEY,
+		name       TEXT NOT NULL,
+		created_at INTEGER NOT NULL
+	);
+	CREATE TABLE IF NOT EXISTS learn_cards (
+		id         TEXT PRIMARY KEY,
+		deck_id    TEXT NOT NULL,
+		front      TEXT NOT NULL,
+		back       TEXT NOT NULL,
+		ease       REAL NOT NULL DEFAULT 2.5,
+		interval_d INTEGER NOT NULL DEFAULT 0,
+		reps       INTEGER NOT NULL DEFAULT 0,
+		lapses     INTEGER NOT NULL DEFAULT 0,
+		due_at     INTEGER NOT NULL DEFAULT 0,
+		created_at INTEGER NOT NULL
+	);
+	CREATE INDEX IF NOT EXISTS idx_learn_cards_due ON learn_cards(deck_id, due_at);`,
+	// 14 — diary + finance subscriptions
+	`CREATE TABLE IF NOT EXISTS diary_entries (
+		id         TEXT PRIMARY KEY,
+		day        TEXT NOT NULL UNIQUE, -- YYYY-MM-DD
+		line       TEXT NOT NULL,
+		mood       INTEGER NOT NULL DEFAULT 3,
+		extra      TEXT NOT NULL DEFAULT '',
+		created_at INTEGER NOT NULL
+	);
+	CREATE TABLE IF NOT EXISTS subscriptions (
+		id         TEXT PRIMARY KEY,
+		name       TEXT NOT NULL,
+		cost       REAL NOT NULL DEFAULT 0,
+		cycle      TEXT NOT NULL DEFAULT 'monthly', -- monthly|yearly|weekly
+		next_at    INTEGER,
+		note       TEXT NOT NULL DEFAULT '',
+		created_at INTEGER NOT NULL
+	);`,
+	// 15 — creative (moodboards + writing sessions)
+	`CREATE TABLE IF NOT EXISTS creative_boards (
+		id         TEXT PRIMARY KEY,
+		name       TEXT NOT NULL,
+		kind       TEXT NOT NULL DEFAULT 'moodboard', -- moodboard|story
+		items      TEXT NOT NULL DEFAULT '[]',
+		updated_at INTEGER NOT NULL
+	);
+	CREATE TABLE IF NOT EXISTS writing_sessions (
+		id         TEXT PRIMARY KEY,
+		day        TEXT NOT NULL, -- YYYY-MM-DD
+		words      INTEGER NOT NULL DEFAULT 0,
+		note       TEXT NOT NULL DEFAULT '',
+		created_at INTEGER NOT NULL
+	);`,
+	// 16 — time blocking
+	`CREATE TABLE IF NOT EXISTS time_blocks (
+		id    TEXT PRIMARY KEY,
+		day   TEXT NOT NULL, -- YYYY-MM-DD
+		label TEXT NOT NULL,
+		start TEXT NOT NULL, -- HH:MM
+		end   TEXT NOT NULL, -- HH:MM
+		color TEXT NOT NULL DEFAULT 'cyan'
+	);
+	CREATE INDEX IF NOT EXISTS idx_time_blocks_day ON time_blocks(day);`,
+	// 17 — podcasts
+	`CREATE TABLE IF NOT EXISTS podcasts (
+		id         TEXT PRIMARY KEY,
+		title      TEXT NOT NULL,
+		url        TEXT NOT NULL, -- RSS feed
+		last_fetch INTEGER,
+		episodes   TEXT NOT NULL DEFAULT '[]',
+		created_at INTEGER NOT NULL
+	);`,
 }

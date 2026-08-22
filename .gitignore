@@ -4,8 +4,12 @@
 # ============================================================
 
 # ── Wails build output ──────────────────────────────────────
-build/
+# build/ 下的 appicon、windows 清单等是构建必需资源,需要提交;
+# 只忽略真正的编译产物
+build/bin/
 frontend/dist/
+frontend/package.json.md5
+frontend/tsconfig.tsbuildinfo
 
 # ── Dependencies ────────────────────────────────────────────
 node_modules/
@@ -37,6 +41,9 @@ desktop.ini
 .env.*.local
 *.pem
 *.key
+
+# ── Archives / scratch ──────────────────────────────────────
+*.zip
 
 # ── OS files ────────────────────────────────────────────────
 $RECYCLE.BIN/

@@ -68,11 +68,26 @@ func (s *FascinatorService) Configure(pythonPath, appPath string, port int) erro
 func (s *FascinatorService) Start() error {
 	s.mu.Lock()
 
-	// 🎯【全栈闭环修复逻辑】：如果发现前端调用时路径为空，底层直接强制对齐你的真实磁盘坐标！
+	// Fall back to the persisted config when this instance was never
+	// explicitly configured (e.g. frontend calls Start right after launch).
 	if s.procPath == "" || s.appPath == "" {
-		s.procPath = `E:\Fascinator\.venv\Scripts\python.exe`
-		s.appPath  = `E:\Fascinator\app.py`
-		s.cfgPath  = `E:\Fascinator\config.json`
+		if cfg := core.GlobalConfig; cfg != nil && cfg.FascinatorApp != "" {
+			s.procPath = cfg.FascinatorPython
+			s.appPath = cfg.FascinatorApp
+			if cfg.FascinatorConfig != "" {
+				s.cfgPath = cfg.FascinatorConfig
+			}
+			if cfg.FascinatorPort > 0 {
+				s.port = cfg.FascinatorPort
+			}
+		}
+	}
+	if s.appPath == "" {
+		s.mu.Unlock()
+		return errors.New("fascinator not configured: set the python and app.py paths in Settings")
+	}
+	if s.procPath == "" {
+		s.procPath = defaultPython()
 	}
 
 	if s.cmd != nil && s.cmd.Process != nil {
@@ -80,10 +95,9 @@ func (s *FascinatorService) Start() error {
 		return errors.New("fascinator already running")
 	}
 
-	// 保底检查，防止路径彻底写错
 	if _, err := os.Stat(s.appPath); err != nil {
 		s.mu.Unlock()
-		return fmt.Errorf("强制保底失败，找不到 app.py 路径: %w", err)
+		return fmt.Errorf("app.py not found at %s: %w", s.appPath, err)
 	}
 	s.mu.Unlock()
 
@@ -260,8 +274,8 @@ func (s *FascinatorService) SetConfigPath(path string) {
 
 func (s *FascinatorService) ReadConfig() (string, error) {
 	s.mu.Lock()
-	if s.cfgPath == "" {
-		s.cfgPath = `E:\Fascinator\config.json`
+	if s.cfgPath == "" && core.GlobalConfig != nil {
+		s.cfgPath = core.GlobalConfig.FascinatorConfig
 	}
 	p := s.cfgPath
 	s.mu.Unlock()
@@ -280,8 +294,8 @@ func (s *FascinatorService) ReadConfig() (string, error) {
 
 func (s *FascinatorService) WriteConfig(content string) error {
 	s.mu.Lock()
-	if s.cfgPath == "" {
-		s.cfgPath = `E:\Fascinator\config.json`
+	if s.cfgPath == "" && core.GlobalConfig != nil {
+		s.cfgPath = core.GlobalConfig.FascinatorConfig
 	}
 	p := s.cfgPath
 	s.mu.Unlock()

@@ -49,12 +49,12 @@ export const PluginPanel: React.FC<PluginPanelProps> = ({ pluginId }) => {
           <div class="p-6 font-mono max-w-7xl mx-auto space-y-6 text-text-mid animate-fade-in">
             <div class="flex items-center justify-between border-b border-edge pb-4">
               <div>
-                <h1 class="text-xl font-bold text-white tracking-wider flex items-center gap-2">
+                <h1 class="text-xl font-bold text-text-hi tracking-wider flex items-center gap-2">
                   🔌 PLUGIN · ${pluginMeta.name.toUpperCase()}
                 </h1>
                 <p class="text-[11px] text-text-lo mt-1">${pluginMeta.description || ''}</p>
               </div>
-              <div class="text-[10px] bg-white/5 border border-edge px-2 py-0.5 rounded text-accent font-mono">
+              <div class="text-[10px] bg-[#eee] border border-[#ddd] px-2 py-0.5 rounded-full text-accent font-mono">
                 ${pluginMeta.id} @ v${pluginMeta.version || '0.1.0'}
               </div>
             </div>
@@ -161,9 +161,9 @@ export const PluginPanel: React.FC<PluginPanelProps> = ({ pluginId }) => {
             <div className="p-6 font-mono text-rose-400 border border-rose-500/20 bg-rose-500/5 m-4 rounded">
                 <h3 className="font-bold text-[14px]">🔌 PLUGIN RUNTIME CRASH</h3>
                 <p className="text-[12px] mt-1 text-text-mid">{error}</p>
-                <p className="text-[11px] text-text-lo mt-2 font-sans bg-black/20 p-2 rounded border border-edge/30">
+                <p className="text-[11px] text-text-lo mt-2 font-sans bg-[#f5f5f5] p-2 rounded border border-edge/30">
                     💡 诊断提示：请确认插件文件已正确放置在本地磁盘的{" "}
-                    <code className="text-white bg-white/10 px-1 rounded font-mono text-[11px]">
+                    <code className="text-accent-dim bg-[#e8e8e8] px-1 rounded font-mono text-[11px]">
                         .personal-terminal/plugins/{pluginMeta?.id || "plugin-id"}/
                     </code>{" "}
                     路径下。

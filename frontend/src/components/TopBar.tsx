@@ -4,12 +4,12 @@ import { Command, Menu } from "lucide-react";
 import clsx from "clsx";
 
 const ACCENTS: { id: AccentColor; color: string }[] = [
-  { id: "cyan",    color: "#5cf2ff" },
-  { id: "magenta", color: "#ff5cd1" },
-  { id: "violet",  color: "#a48bff" },
-  { id: "lime",    color: "#b6ff5c" },
-  { id: "amber",   color: "#ffae5c" },
-  { id: "rose",    color: "#ff5c7a" },
+  { id: "orange",  color: "#ff6b00" },
+  { id: "cyan",    color: "#009a9b" },
+  { id: "violet",  color: "#7c4dff" },
+  { id: "lime",    color: "#2e7d32" },
+  { id: "amber",   color: "#ff8c3a" },
+  { id: "rose",    color: "#e03030" },
 ];
 
 export default function TopBar() {
@@ -53,7 +53,7 @@ export default function TopBar() {
       {/* ── center: command palette trigger (this is THE chrome hero element) ── */}
       <button
         onClick={() => setPaletteOpen(true)}
-        className="group flex items-center gap-2 h-7 px-3 rounded-soft border border-edge bg-black/30 hover:border-white/20 transition"
+        className="group flex items-center gap-2 h-7 px-3 rounded-soft border border-edge bg-white hover:border-[#b0b0b0] transition"
         style={{ minWidth: 360 }}
       >
         <Command size={12} className="text-text-mid" />
@@ -71,9 +71,9 @@ export default function TopBar() {
               title={`accent: ${a.id}`}
               className={clsx(
                 "w-3.5 h-3.5 rounded-sharp transition-transform",
-                accent === a.id ? "scale-110 ring-1 ring-white/40" : "opacity-60 hover:opacity-100"
+                accent === a.id ? "scale-110 ring-1 ring-[#1a1a1a]/40" : "opacity-60 hover:opacity-100"
               )}
-              style={{ background: a.color, boxShadow: accent === a.id ? `0 0 10px ${a.color}80` : undefined }}
+              style={{ background: a.color }}
             />
           ))}
         </div>

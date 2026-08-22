@@ -170,3 +170,58 @@ Useful patterns:
 - Multimodal perception (paper §4) — image / audio embedding into event frames — is out of scope for now.
 
 These are roadmap items; the current integration covers the closed-loop the paper validates in §7 (input → graph write → spreading → top-k → action execution → write-back).
+
+---
+
+## 8. Reverse Bridge — Fascinator 操作 Charon（v0.2 新增）
+
+Charon 不只是 Fascinator 的前端：它内嵌了一个 **反向 HTTP API（Bridge）**，
+让 Fascinator 的动作引擎（或任何本机脚本）直接读写 Charon 的数据。
+
+- 监听地址：`http://127.0.0.1:17734`（仅本机回环，可在 `config.json` 的 `bridge_port` 修改）
+- 鉴权：每个请求必须携带 `X-Charon-Token` 头，token 在首次启动时自动生成，
+  存于 `~/.personal-terminal/config.json` 的 `bridge_token` 字段
+- 开关：`bridge_enabled`（默认 true）
+
+### 端点一览
+
+| Method · Path | Body | 作用 |
+|----|----|----|
+| `GET /health` | — | 存活检查 |
+| `POST /api/notes` | `{title, body, tags[], template?}` | 创建笔记 |
+| `GET /api/notes/search?q=` | — | FTS 全文检索笔记 |
+| `POST /api/todos` | `{title, list?, due_at?, important?}` | 创建待办 |
+| `POST /api/fleeting` | `{body, tags[]}` | 捕捉碎片想法 |
+| `POST /api/health` | `{habit, value, unit?, note?}` | 记录健康/习惯数据 |
+| `POST /api/finance` | `{amount, category?, note?}` | 记账（负数=支出） |
+| `POST /api/diary` | `{line, mood?}` | 写今日一句 |
+| `POST /api/detective/nodes` | `{kind, label, note?, x?, y?}` | 钉卡片到侦探板 |
+| `GET /api/summary` | — | 跨模块统计（today/week/month/year） |
+| `POST /api/events` | `{topic, payload}` | 向 UI 推送任意事件 |
+| `POST /api/notify` | `{title, message}` | 在 Charon 窗口弹 toast |
+
+### Python 调用示例
+
+```python
+import requests
+
+BRIDGE = "http://127.0.0.1:17734"
+TOKEN  = "<bridge_token from ~/.personal-terminal/config.json>"
+H = {"X-Charon-Token": TOKEN}
+
+# 动作引擎把「提醒」落成一条 Charon 待办
+requests.post(f"{BRIDGE}/api/todos", headers=H,
+              json={"title": "复习「图书馆」相关记忆节点", "list": "today"})
+
+# 图谱产生值得留档的结论时写进笔记
+requests.post(f"{BRIDGE}/api/notes", headers=H,
+              json={"title": "Fascinator 洞察", "body": "...", "tags": ["fas"]})
+
+# 提醒用户看一眼
+requests.post(f"{BRIDGE}/api/notify", headers=H,
+              json={"title": "Fascinator", "message": "行动队列有新任务待执行"})
+```
+
+在 Fascinator 侧建议把上述调用封装为 `charon_client.py`，并在 `capability_registry`
+中注册对应能力（如 `charon.create_todo`、`charon.notify`），即可让 `/api/actions/queue`
+中的程序性记忆节点直接操作 Charon。

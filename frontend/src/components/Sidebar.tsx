@@ -64,8 +64,8 @@ export default function Sidebar() {
                       className={clsx(
                         "group w-full h-9 px-3 flex items-center gap-3 rounded-soft transition-colors relative",
                         isActive
-                          ? "text-white"
-                          : "text-text-mid hover:text-white hover:bg-white/[0.03]"
+                          ? "text-text-hi bg-[#fff5ee]"
+                          : "text-text-mid hover:text-text-hi hover:bg-[#f0f0f0]"
                       )}
                       title={sidebarCollapsed ? m.label : undefined}
                     >
@@ -74,7 +74,6 @@ export default function Sidebar() {
                           "absolute left-0 top-1.5 bottom-1.5 w-[2px] transition-all",
                           isActive ? "bg-accent" : "bg-transparent"
                         )}
-                        style={{ boxShadow: isActive ? "0 0 12px rgb(var(--pt-accent-glow) / 0.6)" : undefined }}
                       />
                       <Icon size={15} className={clsx("shrink-0", isActive ? "text-accent" : "")} />
                       {!sidebarCollapsed && (
@@ -119,17 +118,16 @@ export default function Sidebar() {
                             onClick={() => setActive(plugin.id)}
                             className={clsx(
                                 "group w-full h-9 px-3 flex items-center gap-3 rounded-soft transition-colors relative",
-                                isActive ? "text-white" : "text-text-mid hover:text-white hover:bg-white/[0.03]"
+                                isActive ? "text-text-hi bg-[#fff5ee]" : "text-text-mid hover:text-text-hi hover:bg-[#f0f0f0]"
                             )}
                             title={sidebarCollapsed ? plugin.name : undefined}
                         >
-              <span
-                  className={clsx(
-                      "absolute left-0 top-1.5 bottom-1.5 w-[2px] transition-all",
-                      isActive ? "bg-accent" : "bg-transparent"
-                  )}
-                  style={{ boxShadow: isActive ? "0 0 12px rgb(var(--pt-accent-glow) / 0.6)" : undefined }}
-              />
+                          <span
+                              className={clsx(
+                                  "absolute left-0 top-1.5 bottom-1.5 w-[2px] transition-all",
+                                  isActive ? "bg-accent" : "bg-transparent"
+                              )}
+                          />
                           <span className={clsx("shrink-0 text-[15px] w-[15px] h-[15px] flex items-center justify-center", isActive ? "text-accent" : "")}>
                 {plugin.icon || '🔌'}
               </span>

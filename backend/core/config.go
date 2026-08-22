@@ -15,13 +15,22 @@ type Config struct {
 	PluginsDir     string `json:"plugins_dir"`
 	EnabledPlugins string `json:"enabled_plugins"` // JSON array string: ["id1","id2"]
 
-	// ✨ 新增这两个关键字段，用来持久化存储 Fascinator 的本地物理路径
+	// Fascinator launcher paths — configured in Settings, persisted here.
+	// Left empty by default; the UI shows a hint until the user fills them in.
 	FascinatorPython string `json:"fascinator_python"`
 	FascinatorApp    string `json:"fascinator_app"`
+	FascinatorConfig string `json:"fascinator_config"` // path to Fascinator's own config.json (optional)
+	FascinatorPort   int    `json:"fascinator_port"`
 
 	FascinatorURL  string `json:"fascinator_url"`
 	AnthropicKey   string `json:"anthropic_key"`
 	OpenAIKey      string `json:"openai_key"`
+
+	// Reverse bridge — the localhost API Fascinator uses to operate
+	// Charon (create notes / todos / fleeting, notify, events).
+	BridgeEnabled bool   `json:"bridge_enabled"`
+	BridgePort    int    `json:"bridge_port"`
+	BridgeToken   string `json:"bridge_token"`
 
 	AccentColor string `json:"accent_color"`
 	Locale      string `json:"locale"`
@@ -42,11 +51,17 @@ func DefaultConfig() *Config {
 		MediaDir:      filepath.Join(root, "media"),
 		PluginsDir:    filepath.Join(root, "plugins"),
 
-		// ✨ 默认帮你在 Windows 下对齐到项目真实的虚拟环境和 app.py 入口
-		FascinatorPython: `E:\Fascinator\.venv\Scripts\python.exe`,
-		FascinatorApp:    `E:\Fascinator\app.py`,
+		// Fascinator paths are machine-specific — set them in Settings,
+		// they land in config.json instead of being baked into the binary.
+		FascinatorPython: "",
+		FascinatorApp:    "",
+		FascinatorConfig: "",
+		FascinatorPort:   5000,
 
 		FascinatorURL: "http://127.0.0.1:5000",
+
+		BridgeEnabled: true,
+		BridgePort:    17734,
 		AccentColor:   "cyan",
 		Locale:        "zh-CN",
 	}

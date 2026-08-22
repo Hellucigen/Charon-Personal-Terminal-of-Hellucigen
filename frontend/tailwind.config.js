@@ -4,70 +4,66 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Surface palette — these come from --pt-surface-* CSS vars.
-        ink: {
-          950: "#070709",
-          900: "#0a0a0f",
-          800: "#101018",
-          700: "#15151c",
-          600: "#1c1c25",
-          500: "#26262f",
+        // Surfaces — light industrial palette from --pt-* CSS vars.
+        bg: "rgb(var(--pt-bg) / <alpha-value>)",
+        surface: {
+          DEFAULT: "rgb(var(--pt-surface) / <alpha-value>)",
+          2: "rgb(var(--pt-surface-2) / <alpha-value>)",
+          3: "rgb(var(--pt-surface-3) / <alpha-value>)",
         },
         edge: {
-          DEFAULT: "rgba(255,255,255,0.08)",
-          hot: "rgba(255,255,255,0.16)",
+          DEFAULT: "rgb(var(--pt-edge) / 0.16)",
+          hot: "rgb(var(--pt-edge) / 0.34)",
         },
         text: {
-          high: "#e7e7ee",
-          mid:  "#a4a4b3",
-          low:  "#5a5a6a",
+          hi: "rgb(var(--pt-text-hi) / <alpha-value>)",
+          high: "rgb(var(--pt-text-hi) / <alpha-value>)",
+          mid: "rgb(var(--pt-text-mid) / <alpha-value>)",
+          lo: "rgb(var(--pt-text-lo) / <alpha-value>)",
+          low: "rgb(var(--pt-text-lo) / <alpha-value>)",
         },
-        // Accent system. Default is cyan; theme switch swaps these vars.
+        // Dual accent: orange = action/user, teal = focus/system.
         accent: {
           DEFAULT: "rgb(var(--pt-accent) / <alpha-value>)",
           dim: "rgb(var(--pt-accent-dim) / <alpha-value>)",
           glow: "rgb(var(--pt-accent-glow) / <alpha-value>)",
         },
+        teal: {
+          DEFAULT: "rgb(var(--pt-teal) / <alpha-value>)",
+          dim: "rgb(var(--pt-teal-dim) / <alpha-value>)",
+        },
         sig: {
-          cyan:    "#5cf2ff",
-          magenta: "#ff5cd1",
-          violet:  "#a48bff",
-          lime:    "#b6ff5c",
-          amber:   "#ffae5c",
-          rose:    "#ff5c7a",
+          cyan:    "rgb(var(--sig-cyan) / <alpha-value>)",
+          magenta: "rgb(var(--sig-magenta) / <alpha-value>)",
+          violet:  "rgb(var(--sig-violet) / <alpha-value>)",
+          lime:    "rgb(var(--sig-lime) / <alpha-value>)",
+          amber:   "rgb(var(--sig-amber) / <alpha-value>)",
+          rose:    "rgb(var(--sig-rose) / <alpha-value>)",
+          warn:    "rgb(var(--sig-amber) / <alpha-value>)",
+          error:   "rgb(var(--sig-rose) / <alpha-value>)",
+          ok:      "rgb(var(--sig-lime) / <alpha-value>)",
         },
       },
       fontFamily: {
-        sans: ['"Inter"', '"Source Han Sans SC"', "system-ui", "sans-serif"],
-        mono: ['"JetBrains Mono"', '"Fira Code"', "ui-monospace", "monospace"],
-        display: ['"Space Grotesk"', '"Inter"', "sans-serif"],
+        sans: ['"Barlow Semi Condensed"', '"Noto Sans SC"', '"Microsoft YaHei"', "system-ui", "sans-serif"],
+        mono: ['"Share Tech Mono"', '"JetBrains Mono"', '"Consolas"', "ui-monospace", "monospace"],
+        display: ['"Barlow Semi Condensed"', '"Noto Sans SC"', "sans-serif"],
       },
       fontFeatureSettings: {
         nums: '"tnum", "lnum"',
       },
-      backdropBlur: {
-        glass: "20px",
-        heavy: "40px",
-      },
       borderRadius: {
-        // The whole system uses 4px / 6px / 10px max — flat aesthetic.
-        sharp: "2px",
-        soft: "6px",
-        pill: "999px",
+        // Flat aesthetic: 2px max on containers; pills use .pt-chip.
+        sharp: "0px",
+        soft: "2px",
+        pill: "10px",
       },
       animation: {
-        "scan-line":   "scan 4s linear infinite",
         "pulse-soft":  "pulse-soft 2.2s ease-in-out infinite",
         "shimmer":     "shimmer 3s linear infinite",
         "cursor-blink":"cursor-blink 1.1s steps(1) infinite",
       },
       keyframes: {
-        scan: {
-          "0%":   { transform: "translateY(-100%)", opacity: "0" },
-          "10%":  { opacity: "0.6" },
-          "90%":  { opacity: "0.6" },
-          "100%": { transform: "translateY(100%)", opacity: "0" },
-        },
         "pulse-soft": {
           "0%, 100%": { opacity: "0.4" },
           "50%":      { opacity: "1" },

@@ -16,10 +16,10 @@ import (
 var assets embed.FS
 
 func main() {
-	app := NewApp()
-
 	// Bindable module services. Each gets surfaced to the frontend
 	// at window.go.<package>.<Method> via Wails' code generation.
+	// fascinatorSvc is created once and shared with App so the bound
+	// methods and the app lifecycle manage the same process.
 	fascinatorSvc := modules.NewFascinatorService()
 	notesSvc := modules.NewNotesService()
 	todoSvc := modules.NewTodoService()
@@ -27,6 +27,22 @@ func main() {
 	shortcutsSvc := modules.NewShortcutsService()
 	bookmarksSvc := modules.NewBookmarksService()
 	pluginsSvc := modules.NewPluginsService()
+	passwordsSvc := modules.NewPasswordService()
+	detectiveSvc := modules.NewDetectiveService()
+	travelSvc := modules.NewTravelService()
+	instituteSvc := modules.NewInstituteService()
+	learningSvc := modules.NewLearningService()
+	musicSvc := modules.NewMusicService()
+	financeSvc := modules.NewFinanceService()
+	healthSvc := modules.NewHealthService()
+	creativeSvc := modules.NewCreativeService()
+	netSvc := modules.NewNetService()
+	timeSvc := modules.NewTimeService()
+	rpgSvc := modules.NewRPGService()
+	dataSvc := modules.NewDataService()
+	diarySvc := modules.NewDiaryService()
+
+	app := NewApp(fascinatorSvc)
 
 	err := wails.Run(&options.App{
 		Title:                    "Personal Terminal",
@@ -35,7 +51,7 @@ func main() {
 		MinWidth:                 1100,
 		MinHeight:                700,
 		Frameless:                false,
-		BackgroundColour:         &options.RGBA{R: 10, G: 10, B: 15, A: 255},
+		BackgroundColour:         &options.RGBA{R: 244, G: 244, B: 244, A: 255},
 		AssetServer:              &assetserver.Options{Assets: assets},
 		OnStartup:                app.startup,
 		OnShutdown:               app.shutdown,
@@ -49,6 +65,20 @@ func main() {
 			shortcutsSvc,
 			bookmarksSvc,
 			pluginsSvc,
+			passwordsSvc,
+			detectiveSvc,
+			travelSvc,
+			instituteSvc,
+			learningSvc,
+			musicSvc,
+			financeSvc,
+			healthSvc,
+			creativeSvc,
+			netSvc,
+			timeSvc,
+			rpgSvc,
+			dataSvc,
+			diarySvc,
 		},
 		Windows: &windows.Options{
 			WebviewIsTransparent:              true,
