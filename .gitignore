@@ -73,3 +73,6 @@ temp/
 *.orig
 _filelist.txt
 dirlist.txt
+
+# 本地启动备注
+run.txt

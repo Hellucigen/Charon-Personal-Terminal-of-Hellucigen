@@ -32,7 +32,48 @@ const TEMPLATES: { id: string; label: string; hint: string }[] = [
   { id: 'travel',    label: 'TRAVEL',      hint: '旅游' },
   { id: 'institute', label: 'INSTITUTE',   hint: '学院' },
   { id: 'study',     label: 'STUDY',       hint: '学习笔记' },
+  { id: 'research',  label: 'RESEARCH',    hint: '研究笔记' },
+  { id: 'lyric',     label: 'LYRICS',      hint: '歌词' },
 ]
+
+// Initial body JSON applied when creating a note under a given template.
+const TEMPLATE_BODIES: Record<string, string> = {
+  research: JSON.stringify({
+    type: 'doc',
+    content: [
+      { type: 'heading', attrs: { level: 2 }, content: [{ type: 'text', text: '问题' }] },
+      { type: 'paragraph' },
+      { type: 'heading', attrs: { level: 2 }, content: [{ type: 'text', text: '假设' }] },
+      { type: 'paragraph' },
+      { type: 'heading', attrs: { level: 2 }, content: [{ type: 'text', text: '方案 / 实验' }] },
+      { type: 'paragraph' },
+      { type: 'heading', attrs: { level: 2 }, content: [{ type: 'text', text: '结论' }] },
+      { type: 'paragraph' },
+    ],
+  }),
+  lyric: JSON.stringify({
+    type: 'doc',
+    content: [
+      { type: 'paragraph', content: [{ type: 'text', marks: [{ type: 'italic' }], text: '曲： / 词：' }] },
+      { type: 'paragraph' },
+      { type: 'heading', attrs: { level: 3 }, content: [{ type: 'text', text: 'Verse 1' }] },
+      { type: 'paragraph' },
+      { type: 'heading', attrs: { level: 3 }, content: [{ type: 'text', text: 'Chorus' }] },
+      { type: 'paragraph' },
+    ],
+  }),
+  dream: JSON.stringify({
+    type: 'doc',
+    content: [
+      { type: 'paragraph', content: [{ type: 'text', marks: [{ type: 'bold' }], text: '日期：' }] },
+      { type: 'paragraph', content: [{ type: 'text', marks: [{ type: 'bold' }], text: '清醒度：/5' }] },
+      { type: 'heading', attrs: { level: 3 }, content: [{ type: 'text', text: '梦境' }] },
+      { type: 'paragraph' },
+      { type: 'heading', attrs: { level: 3 }, content: [{ type: 'text', text: '醒来后的感受' }] },
+      { type: 'paragraph' },
+    ],
+  }),
+}
 
 export const Notes: React.FC = () => {
   const [notes, setNotes] = useState<Note[]>([])
@@ -61,10 +102,11 @@ export const Notes: React.FC = () => {
   }, [notes, query])
 
   const create = async () => {
+    const tpl = template || 'blank'
     const n = await api.notes.create({
       title: '未命名笔记',
-      template: template || 'blank',
-      body: '{"type":"doc","content":[{"type":"paragraph"}]}',
+      template: tpl,
+      body: TEMPLATE_BODIES[tpl] || '{"type":"doc","content":[{"type":"paragraph"}]}',
       tags: [],
     })
     if (n) { setActive(n); reload() }

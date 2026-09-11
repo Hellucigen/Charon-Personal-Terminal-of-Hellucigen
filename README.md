@@ -51,7 +51,7 @@ Personal Terminal 是一个跨平台桌面应用，将约 22 个个人知识管�
 - **Fascinator** — full cognitive console: 80+ API endpoints across 11 tabs (graph canvas with node/edge CRUD, NLP, diffusion engine, action queue, self model, episodic buffer, knowledge packs, ear/vision, chat log, config)
 
 ### Knowledge
-- **Notes** — Notion-style block editor (Tiptap) with sub-templates: blank · dream · weapon · anime · game · movie · book · poem · plant · wishlist · want-game · password · detective · travel · institute · study. Wiki-links (`[[title]]`), full-text search, backlinks.
+- **Notes** — Notion-style block editor (Tiptap) with sub-templates: blank · dream · weapon · anime · game · movie · book · poem · plant · wishlist · want-game · password · detective · travel · institute · study · research · lyric. Wiki-links (`[[title]]`), full-text search, backlinks.
 - **Fleeting** — Ctrl+Alt+N hotkey, waterfall stream, promote-to-note workflow
 - **Detective Board** — red-string corkboard on an SVG canvas: draggable person/place/event/evidence/theory cards, confirmed/suspect/ruled-out relations, JSON export
 - **Travel** — trips + daily entries (mood / spend / GPS), mini-map footprint, spending auto-posts to Finance
